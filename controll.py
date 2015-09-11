@@ -38,6 +38,8 @@ class Command:
 
 
 class Bulb:
+	__MaxBright = 0xffff
+
 	def __init__(self):
 		self.__tab = {
 			'rot0': self.__rotateLeft,
@@ -46,26 +48,25 @@ class Bulb:
 			'sw1': self.__switchRight
 		}
 		self.__on = True
-		self.__brightStep = 0.05
+		self.__brightStep = 0.02
 		self.__bright = 0.3
-		self.__kelvinMin = 2300
+		self.__kelvinMin = 2400
 		self.__kelvinMax = 8000
-		self.__kelvinStep = (self.__kelvinMax - self.__kelvinMin) / 30.0
+		self.__kelvinStep = (self.__kelvinMax - self.__kelvinMin) / 60.0
 		self.__kelvin = 4000
 		self.set(self.__bright, self.__kelvin)
 
 	def set(self, bright, kelvin):
-		print('SET %f %d' % (bright, kelvin))
+		print('SET %0.2f %d K' % (bright, kelvin))
 		bright = self.__corr(bright)
-		bright = int(bright * 0xffff)
-		bright = limit(0, 0xffff, bright)
+		bright = int(bright * self.__MaxBright)
+		bright = limit(0, self.__MaxBright, bright)
 		lifx.set_color(lifx.BCAST, 0, 0, bright, kelvin, 0)
 		lifx.set_color(lifx.BCAST, 0, 0, bright, kelvin, 0)
 
 	def action(self, name, value):
-		print('%s = %d' % (name, value))
+		#print('%s = %d' % (name, value))
 		self.__tab[name](value)
-
 	
 	def __corr(self, value):
 		corr = (10.0 ** value - 1.0) / 9.0
@@ -111,3 +112,5 @@ uart = serial.Serial('/dev/ttyAMA0', 115200)
 bulb = Bulb()
 command = Command(uart, bulb.action)
 command.run()
+
+
