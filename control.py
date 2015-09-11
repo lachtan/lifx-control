@@ -76,10 +76,7 @@ class Bulb:
 		if not self.__on:
 			return
 		bright = self.__bright + value * self.__brightStep
-		if bright <= 0:
-			bright = 0
-		elif bright >= 1.0:
-			bright = 1.0
+		bright = limit(0.0, 1.0, bright)
 		if bright != self.__bright:
 			self.__bright = bright
 			self.set(self.__bright, self.__kelvin)
